@@ -1,0 +1,150 @@
+checks for lab_item:
+  - row_count > 0:
+      name: lab_item表不为空
+  - failed rows:
+      name: 标准库行数与中间库按常规检验筛选的行数一致
+      fail query: |
+        select 1 where (select count(1) from lab_item) != 
+        (select count(1) from maicim_lis_result_icu where report_id in
+        (select distinct report_id from maicim_lis_report_icu where category = 'L'))
+  - failed rows:
+      name: 标准库行数小于等于镜像库按常规检验筛选的行数（中间库按住院流水号过滤了一部分）
+      fail query: |
+        select 1 where (select count(1) from lab_item) >
+        (select count(1) from q_lab102 where LabFlow in (select report_id from maicim_lis_report_icu))
+  - duplicate_count(resultId) = 0:
+      name: resultId唯一
+  - missing_count(resultId) = 0:
+      name: resultId不为空
+  - missing_count(itemId) = 0:
+      name: itemId不为空
+  - failed rows:
+      name: itemId值域检查
+      fail condition: |
+        itemId is not null
+        and itemId not in (select itemId from standard_items_map where tableName = 'lab_item')
+  - missing_count(itemName) = 0:
+      name: itemName不为空
+  - missing_count(value) = 0:
+      name: value不为空
+  - failed rows:
+      name: value为数值时valueNum不为空
+      fail query: |
+        select * from lab_item
+        where value is not null
+          and value != ''
+          and value glob '^[0-9]+(\.[0-9]+)?$'
+          and valueNum is null
+  - missing_percent(unit) < 100:
+      name: unit不全为空
+  - failed rows:
+      name: itemId为20009与20017的单位为%时值域[0,100],否则[0,1]
+      fail query: |
+        select * from lab_item
+        where itemId in ('20009', '20017')
+        and (
+          (unit = '%' and (cast(value as double) < 0 or cast(value as double) > 100))
+          or
+          (unit != '%' and (cast(value as double) < 0 or cast(value as double) > 1))
+        )
+  - missing_count(valueFlag) = 0:
+      name: valueFlag不为空
+  - failed rows:
+      name: valueFlag范围，0正常，1异常
+      fail condition: |
+        valueFlag is not null
+        and valueFlag not in ('0', '1')
+  # show_on_fail: |
+  #        select '【PH血液酸碱度】匹配数' as item, count(1) as cnt from lab_item where itemId = '20002'
+  #        union all
+  #        select '【红细胞压积】匹配数' as item, count(1) as cnt from lab_item where itemId = '20009'
+  #        union all
+  #        select '【吸氧浓度】匹配数' as item, count(1) as cnt from lab_item where itemId = '20017'
+  #        union all
+  #        select '【二氧化碳分压】匹配数' as item, count(1) as cnt from lab_item where itemId = '20004'
+  - failed rows:
+      name: 查询验证itemId为20002(PH血液酸碱度)，20009(红细胞压积)，20017(吸氧浓度)，20004(二氧化碳分压)的记录
+      fail query: |
+        select 1
+        where not exists (select 1 from lab_item where itemId = '20002')
+           or not exists (select 1 from lab_item where itemId = '20009')
+           or not exists (select 1 from lab_item where itemId = '20017')
+           or not exists (select 1 from lab_item where itemId = '20004')
+  # show_on_fail: |
+  #        select '【血常规】匹配数' as item, count(1) as cnt from lab_item where reportName like '%血常规%'
+  #        union all
+  #        select '【白细胞数】匹配数' as item, count(1) as cnt from lab_item where itemId = '20051'
+  - failed rows:
+      name: 查询验证reportName包含/血常规/时，itemId为20051(白细胞数)的记录
+      fail query: |
+        select 1
+        where not exists (select 1 from lab_item where reportName like '%血常规%' and itemId = '20051')
+  # show_on_fail: |
+  #        select distinct ‘钠’ as item,  specimenId from lab_item where itemId = '20000'
+  #        union all
+  #        select distinct ‘钾’ as item, specimenId from lab_item where itemId = '20005'
+  #        union all
+  #        select distinct ‘肌酐’ as item, specimenId from lab_item where itemId = '20074'
+  - failed rows:
+      name: 查询验证标本specimenId:{$in:["35","36",]}时（35血清，36血浆），itemId为20000（钠），20005（钾），20074（肌酐）的记录，如果查询不到，distinct出钠、钾、肌酐记录的所有标本
+      fail query: |
+        select 1
+        where not exists (select 1 from lab_item where specimenId in ('35', '36') and itemId = '20000')
+           or not exists (select 1 from lab_item where specimenId in ('35', '36') and itemId = '20005')
+           or not exists (select 1 from lab_item where specimenId in ('35', '36') and itemId = '20074')
+  # show_on_fail: |
+  #        select distinct ‘氧分压’ as item, specimenId from lab_item
+  #        where itemId = '20003'
+  - failed rows:
+      name: 查询验证标本specimenId为3（动脉血）时，itemId为20003（氧分压）的记录，如果查询不到，distinct出20003记录的所有标本
+      fail query: |
+        select 1
+        where not exists (select 1 from lab_item where specimenId = '3' and itemId = '20003')
+  # show_on_fail: |
+  #        select '【血小板数】匹配数' as item, count(1) as cnt from lab_item where itemId = '20050'
+  #        union all
+  #        select '【总胆红素】匹配数' as item, count(1) as cnt from lab_item where itemId = '20076'
+  #        union all
+  #        select '【肌酐】匹配数' as item, count(1) as cnt from lab_item where itemId = '20074'
+  - failed rows:
+      name: 查询验证itemId为20050（血小板数），20076（总胆红素），20074（肌酐）的记录
+      fail query: |
+        select 1
+        where not exists (select 1 from lab_item where itemId = '20050')
+           or not exists (select 1 from lab_item where itemId = '20076')
+           or not exists (select 1 from lab_item where itemId = '20074')
+  - failed rows:
+      name: 查询验证itemId为20093（白介素）的记录
+      fail query: |
+        select 1
+        where not exists (select 1 from lab_item where itemId = '20093')
+  # show_on_fail: |
+  #        select '【白细胞数】匹配数' as item, count(1) as cnt from lab_item where itemId = '20051'
+  #        union all
+  #        select '【尿常规、尿液分析】匹配数' as item, count(1) as cnt from lab_item where reportName like '%尿常规%' or reportName like '%尿液分析%'
+  - failed rows:
+      name: 查询验证itemId为20051并且reportName:{$in:[/尿常规/, /尿液分析/]}两个条件下的记录
+      fail query: |
+        select 1
+        where not exists
+        (select 1 from lab_item where itemId = '20051' and (reportName like '%尿常规%' or reportName like '%尿液分析%'))
+  # show_on_fail: |
+  #        select '【血氧饱和度】匹配数' as item, count(1) as cnt from lab_item where itemId = '20001'
+  #        union all
+  #        select '【中心静脉标本】匹配数' as item, count(1) as cnt from lab_item where specimenId = '67'
+  - failed rows:
+      name: 查询验证"itemId":"20001"并且specimenId":"67"的记录。代表中心静脉血氧饱和度
+      fail query: |
+        select 1
+        where not exists
+        (select 1 from lab_item where itemId = '20001' and specimenId = '67')
+  # show_on_fail: |
+  #        select '【乳酸】匹配数' as item, count(1) as cnt from lab_item where itemId = '20006'
+  #        union all
+  #        select '【动脉血】匹配数' as item, count(1) as cnt from lab_item where specimenId = '3'
+  - failed rows:
+      name: 查询验证"itemId":"20006"并且specimenId":"3"的记录。代表乳酸（动脉血）
+      fail query: |
+        select 1
+        where not exists
+        (select 1 from lab_item where itemId = '20006' and specimenId = '3')

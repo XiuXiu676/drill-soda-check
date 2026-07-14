@@ -1,0 +1,265 @@
+checks for orderMain:
+  - row_count > 0:
+      name: orderMain表不为空
+  - failed rows:
+      name: 标准库与中间库医嘱ID数一致
+      fail query: |
+        select 1 where (select count(1) from (select distinct orderId from orderMain where orderId is not null)) !=
+        (select count(1) from (select distinct order_id from maicim_orderMain_icu))
+  - failed rows:
+      name: 标准库医嘱ID数小于等于镜像库医嘱ID数（中间库按住院流水号过滤了一部分）
+      fail query: |
+        select 1 where (select count(1) from (select distinct orderId from orderMain where orderId is not null)) >
+        (select count(1) from (select distinct order_id from q_order101))
+  - failed rows:
+      name: orderId唯一
+      fail query: |
+        select 1
+        where not exists (
+        select orderId from orderMain
+        where orderId is not null
+        group by orderId
+        having count(1) > 1)
+  - failed rows:
+      name: orderId不为空（排除只有groupNo和details的执行记录）
+      fail query: |
+        select * from orderMain
+        where orderId is null
+        and not (
+        groupNo is not null
+        and details is not null
+        and orderId is null)
+  - failed rows:
+      name: 一个groupNo对应多个orderId（一对多验证）
+      fail query: |
+        select 1
+        where not exists (
+        select groupNo, count(distinct orderId) as order_count
+        from orderMain
+        where groupNo is not null
+        and orderId is not null
+        group by groupNo
+        having count(distinct orderId) > 1)
+  - failed rows:
+      name: orderType不为空
+      fail query: |
+        select * from orderMain where orderId is not null and orderType is null
+  - failed rows:
+      name: orderType值域检查，0临时1长期
+      fail condition: |
+        orderType is not null
+        and orderType not in (select itemId from standard_dictionary_map where dicCode = 'dic_orderType')
+  - failed rows:
+      name: orderCategory不为空
+      fail query: |
+        select * from orderMain where orderId is not null and orderCategory is null
+  - failed rows:
+      name: orderCategory值域检查
+      fail condition: |
+        orderCategory is not null
+        and orderCategory not in (select itemId from standard_dictionary_map where dicCode = 'dic_orderCategory')
+  - failed rows:
+      name: sourceOrderCategory不为空
+      fail query: |
+        select * from orderMain where orderId is not null and sourceOrderCategory is null
+  - failed rows:
+      name: status不为空
+      fail query: |
+        select * from orderMain where orderId is not null and status is null
+  - failed rows:
+      name: status值域检查
+      fail condition: |
+        status is not null
+        and status not in (select itemId from standard_dictionary_map where dicCode = 'dic_status')
+  - failed rows:
+      name: sourceStatus不为空
+      fail query: |
+        select * from orderMain where orderId is not null and sourceStatus is null
+  - failed rows:
+      name: sourceStatusName不为空
+      fail query: |
+        select * from orderMain where orderId is not null and sourceStatusName is null
+  - failed rows:
+      name: 药品医嘱dosageUnit不为空
+      fail query: |
+        select * from orderMain where orderId is not null and orderCategory = '0' and dosageUnit is null
+  - failed rows:
+      name: dosageUnit值域检查
+      fail condition: |
+        dosageUnit is not null
+        and dosageUnit not in (select itemId from standard_dictionary_map where dicCode = 'dic_dosageUnit')
+  - failed rows:
+      name: 药品医嘱sourceDosageUnit不为空
+      fail query: |
+        select * from orderMain where orderId is not null and orderCategory = '0' and sourceDosageUnit is null
+  - failed rows:
+      name: 药品医嘱dosage不为空
+      fail query: |
+        select * from orderMain where orderId is not null and orderCategory = '0' and dosage is null
+  - failed rows:
+      name: 药品医嘱frequency不为空
+      fail query: |
+        select * from orderMain where orderId is not null and orderCategory = '0' and frequency is null
+  - failed rows:
+      name: frequency值域检查
+      fail condition: |
+        frequency is not null
+        and frequency not in (select itemId from standard_dictionary_map where dicCode = 'dic_frequency')
+  - failed rows:
+      name: sourceFrequency不为空
+      fail query: |
+        select * from orderMain where orderId is not null and orderCategory = '0' and sourceFrequency is null
+  - failed rows:
+      name: sourceFrequencyName不为空
+      fail query: |
+        select * from orderMain where orderId is not null and orderCategory = '0' and sourceFrequencyName is null
+  - failed rows:
+      name: drugRoute不为空
+      fail query: |
+        select * from orderMain where orderId is not null and orderCategory = '0' and drugRoute is null
+  - failed rows:
+      name: drugRoute值域检查
+      fail condition: |
+        drugRoute is not null
+        and drugRoute not in (select itemId from standard_dictionary_map where dicCode = 'dic_drugRoute')
+  - failed rows:
+      name: sourceDrugRoute不为空
+      fail query: |
+        select * from orderMain where orderId is not null and orderCategory = '0' and sourceDrugRoute is null
+  - failed rows:
+      name: sourceDrugRouteName不为空
+      fail query: |
+        select * from orderMain where orderId is not null and orderCategory = '0' and sourceDrugRouteName is null
+  - row_count > 0:
+      name: selfPreparedDrug不全为空
+      filter: selfPreparedDrug is not null
+  - row_count > 0:
+      name: firstDayFreq不全为空
+      filter: firstDayFreq is not null
+  - failed rows:
+      name: icuStayId不为空
+      fail query: |
+        select * from orderMain where orderId is not null and icuStayId is null
+  - failed rows:
+      name: patientId不为空
+      fail query: |
+        select * from orderMain where orderId is not null and patientId is null
+  - failed rows:
+      name: inpatientNo不为空
+      fail query: |
+        select * from orderMain where orderId is not null and inpatientNo is null
+  # show_on_fail: |
+  #        select concat('orderId: ', orderId) from orderMain where orderId is not null and visitId is null
+  - failed rows:
+      name: visitId不为空
+      fail query: |
+        select * from orderMain where orderId is not null and visitId is null
+  - failed rows:
+      name: name不为空
+      fail query: |
+        select * from orderMain where orderId is not null and name is null
+  # show_on_fail: |
+  #        select ‘【多巴胺】匹配数’ as item, count(1) as cnt from orderMain where orderName like '%多巴胺%'
+  #        union all
+  #        select ‘【多巴酚丁胺】匹配数’ as item, count(1) as cnt from orderMain where orderName like '%多巴酚丁胺%'
+  #        union all
+  #        select ‘【肾上腺素】匹配数’ as item, count(1) as cnt from orderMain where orderName like '%肾上腺素%'
+  #        union all
+  #        select ‘【去甲肾上腺素】匹配数’ as item, count(1) as cnt from orderMain where orderName like '%去甲肾上腺素%'
+  - failed rows:
+      name: 查询验证orderName包含以下关键字{$in:[/多巴胺/,/多巴酚丁胺/,/肾上腺素/,/去甲肾上腺素/]}的记录
+      fail query: |
+        select 1
+        where not exists (
+        select 1 from orderMain 
+        where orderName like '%多巴胺%'
+           or orderName like '%多巴酚丁胺%'
+           or orderName like '%肾上腺素%'
+           or orderName like '%去甲肾上腺素%'
+        )
+  - row_count > 0:
+      name: details不全为空
+      filter: details is not null
+  # show_on_fail: |
+  #        select distinct orderName from orderMain
+  #        where orderName like '%插管%'
+  - failed rows:
+      name: 查询验证"orderType":"1"并且"orderName":{"$in":[/口插管/,/鼻插管/,/气管插管/]} 两个条件下的记录，如果查不到，distinct出所有包含/插管/关键字的orderName
+      fail query: |
+        select 1
+        where not exists (
+        select 1 from orderMain
+        where orderType = '1'
+        and (orderName like '%口插管%'
+          or orderName like '%鼻插管%'
+          or orderName like '%气管插管%'
+        ))
+  # show_on_fail: |
+  #        select ‘【多巴胺】匹配数’ as item, count(1) as cnt from orderMain where orderName like '%多巴胺%'
+  #        union all
+  #        select ‘【去甲肾上腺素】匹配数’ as item, count(1) as cnt from orderMain where orderName like '%去甲肾上腺素%'
+  #        union all
+  #        select ‘【肾上腺素】匹配数’ as item, count(1) as cnt from orderMain where orderName like '%肾上腺素%'
+  #        union all
+  #        select ‘【血管加压素】匹配数’ as item, count(1) as cnt from orderMain where orderName like '%血管加压素%'
+  - failed rows:
+      name: 查询验证"orderName":{"$in":[/多巴胺/,/去甲肾上腺素/,/肾上腺素 /,/血管加压素/]}条件下的记录
+      fail query: |
+        select 1
+        where not exists (
+        select 1 from orderMain
+        where orderName like '%多巴胺%'
+           or orderName like '%去甲肾上腺素%'
+           or orderName like '%肾上腺素%'
+           or orderName like '%血管加压素%'
+        )
+  # show_on_fail: |
+  #        select ‘【去甲肾上腺素】匹配数’ as item, count(1) as cnt from orderMain where orderName like '%去甲肾上腺素%'
+  #        union all
+  #        select ‘【多巴胺】匹配数’ as item, count(1) as cnt from orderMain where orderName like '%多巴胺%'
+  #        union all
+  #        select ‘【垂体后叶素】匹配数’ as item, count(1) as cnt from orderMain where orderName like '%垂体后叶素%'
+  #        union all
+  #        select ‘【肾上腺素】匹配数’ as item, count(1) as cnt from orderMain where orderName like '%肾上腺素%'
+  #        union all
+  #        select ‘【间羟胺】匹配数’ as item, count(1) as cnt from orderMain where orderName like '%间羟胺%'
+  #        union all
+  #        select ‘【status不为3】匹配数’ as item, count(1) as cnt from orderMain where status != '3'
+  - failed rows:
+      name: 查询验证"orderName":{"$in":[/去甲肾上腺素/,/多巴胺/,/垂体后叶素/,/肾上腺素/,/间羟胺/]}与"status":{$ne:"3"}两个条件下的记录
+      fail query: |
+        select 1
+        where not exists (
+        select 1 from orderMain
+        where status != '3'
+        and orderName like '%去甲肾上腺素%'
+         or orderName like '%多巴胺%'
+         or orderName like '%垂体后叶素%'
+         or orderName like '%肾上腺素%'
+         or orderName like '%间羟胺%'
+        )
+  # show_on_fail: |
+  #        select ‘【0.9%氯化钠】匹配数’ as item, count(1) as cnt from orderMain where orderName like '%0.9%氯化钠%'
+  #        union all
+  #        select ‘【复方氯化钠】匹配数’ as item, count(1) as cnt from orderMain where orderName like '%复方氯化钠%'
+  #        union all
+  #        select ‘【钠钾镁钙葡萄糖】匹配数’ as item, count(1) as cnt from orderMain where orderName like '%钠钾镁钙葡萄糖%'
+  #        union all
+  #        select ‘【钠钾葡萄糖】匹配数’ as item, count(1) as cnt from orderMain where orderName like '%钠钾葡萄糖%'
+  #        union all
+  #        select ‘【乳酸林格氏】匹配数’ as item, count(1) as cnt from orderMain where orderName like '%乳酸林格氏%'
+  #        union all
+  #        select ‘【status不为3】匹配数’ as item, count(1) as cnt from orderMain where status != '3'
+  - failed rows:
+      name: 查询验证"orderName":{"$in":[/0.9%氯化钠/,/复方氯化钠/,/钠钾镁钙葡萄糖/,/钠钾葡萄糖/,/乳酸林格氏/]}与"status":{$ne:"3"}  两个条件下的记录。
+      fail query: |
+        select 1
+        where not exists (
+        select 1 from orderMain
+        where status != '3'
+        and orderName like '%0.9%氯化钠%'
+         or orderName like '%复方氯化钠%'
+         or orderName like '%钠钾镁钙葡萄糖%'
+         or orderName like '%钠钾葡萄糖%'
+         or orderName like '%乳酸林格氏%'
+        )

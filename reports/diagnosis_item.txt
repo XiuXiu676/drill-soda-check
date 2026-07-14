@@ -1,0 +1,28 @@
+Soda Core 3.5.6
+Scan summary:
+22/22 checks PASSED: 
+
+  ✅ diagnosis_item表不为空 [PASS]
+  ✅ 标准库与中间库行数一致 [PASS]
+  ✅ 标准库与镜像库行数一致 [PASS]
+  ✅ 标准库与中间库诊断ID列表一致 [PASS]
+  ✅ 标准库与镜像库诊断ID列表一致 [PASS]
+  ✅ diagnosisCategory值域检查，0主要诊断1次要诊断 [PASS]
+  ✅ diagnosisType值域检查 [PASS]
+  ✅ diagnosis_id唯一 [PASS]
+  ✅ diagnosis_id不为空 [PASS]
+  ✅ icdCode不为空 [PASS]
+  ✅ diagnosisCategory不为空 [PASS]
+  ✅ diagnosisType不为空 [PASS]
+  ✅ diagnosisTime不为空 [PASS]
+  ✅ icuStayId不为空 [PASS]
+  ✅ patientId不为空 [PASS]
+  ✅ inpatientNo不为空 [PASS]
+  ✅ visitId不为空 [PASS]
+  ✅ name不为空 [PASS]
+  ✅ standDiagCategory不全为空 [PASS]
+  ✅ diagScore不全为空 [PASS]
+  ✅ standOperDiagCategory不全为空 [PASS]
+  ✅ operDiagScore不全为空 [PASS]
+
+All is good. No failures. No warnings. No errors.

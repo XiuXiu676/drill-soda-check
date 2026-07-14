@@ -1,0 +1,113 @@
+checks for microbe_item:
+  - row_count > 0:
+      name: microbe_item表不为空
+  - failed rows:
+      name: 标准库与中间库微生物报告结果行数一致
+      fail query: |
+        select 1
+        where (select count(1) from microbe_item) != (
+        select count(1) from maicim_lis_result_icu
+        left join maicim_lis_microbe_icu on maicim_lis_result_icu.result_id = maicim_lis_microbe_icu.result_id
+        where maicim_lis_result_icu.report_id in (select report_id from maicim_lis_report_icu where category = 'M')
+        )
+  - failed rows:
+      name: 标准库与镜像库微生物报告结果行数一致
+      fail query: |
+        select 1
+        where (select count(1) from microbe_item) != (
+        select count(1) from q_lab102
+        left join q_lab103 on q_lab102.LabItemRcdFlow = q_lab103.LabItemRcdFlow
+        where q_lab102.LabFlow in (select report_id from maicim_lis_report_icu where category = 'M')
+        )
+  - duplicate_count(drugResultId) = 0:
+      name: drugResultId唯一
+  - missing_count(drugResultId) = 0:
+      name: drugResultId不为空
+  - failed rows:
+      name: 一类itemName值为具体的‘******菌’，一类itemName值关键字为‘未见’‘不见’‘未培养出’等表示未检出菌的描述
+      fail query: |
+        select 1
+        where not exists (select 1 from microbe_item where itemName like '%菌%')
+           or not exists (select 1 from microbe_item where itemName like '%未见%'
+                                                        or itemName like '%不见%'
+                                                        or itemName like '%未培养出%'
+                                                        or itemName like '%无细菌%'
+                                                        or itemName like '%培养结果%')
+  # show_on_fail: |
+  #        select concat('drugResultId: ', drugResultId) from microbe_item where itemName like '%菌%'
+  #                                                and itemName not like '%未见%'
+  #                                                and itemName not like '%不见%'
+  #                                                and itemName not like '%未培养出%'
+  #                                                and itemName not like '%无细菌%'
+  #                                                and itemName not like '%培养结果%'
+  #                                                and (drugCode is null
+  #                                                  or drugName is null
+  #                                                  or DSTvalue is null
+  #                                                  or DSTresult is null)
+  - failed rows:
+      name: itemName值为‘******菌’时，对每个检出的菌做多条药敏测试，drugCode、drugName、DSTvalue、DSTresult不为空
+      fail query: |
+        select 1
+        where exists (
+        select 1 from microbe_item
+        where itemName like '%菌%'
+        and itemName not like '%未见%'
+        and itemName not like '%不见%'
+        and itemName not like '%未培养出%'
+        and itemName not like '%无细菌%'
+        and itemName not like '%培养结果%'
+        and (drugCode is null
+          or drugName is null
+          or DSTvalue is null
+          or DSTresult is null)
+        )
+  - failed rows:
+      name: 当itemName值关键字为‘未见’‘不见’‘未培养出’等表示未检出菌的描述时，药敏测试字段也都为空
+      fail query: |
+        select 1
+        where exists (
+        select 1 from microbe_item
+        where (itemName like '%未见%'
+            or itemName like '%不见%'
+            or itemName like '%未培养出%'
+            or itemName like '%无细菌%'
+            or itemName like '%培养结果%')
+        and (drugCode is not null
+          or drugName is not null
+          or DSTvalue is not null
+          or DSTresult is not null)
+        )
+  # show_on_fail: |
+  #        select '【中心静脉】匹配数' as item, count(1) as cnt from lab_item where specimenId = '67'
+  #        union all
+  #        select '【外周静脉】匹配数' as item, count(1) as cnt from lab_item where specimenId = '68'
+  #        union all
+  #        select '【导管头】匹配数' as item, count(1) as cnt from lab_item where specimenId = '45'
+  - failed rows:
+      name: 查询验证specimenId在67（中心静脉），68（外周静脉），45（导管头）范围内的记录
+      fail query: |
+        select 1
+        where not exists (select 1 from microbe_item where specimenId in ('67', '68', '45'))
+  # show_on_fail: |
+  #        select distinct reportName from microbe_item
+  #        where reportName like '%导管培养%'
+  #           or reportName like '%血培养%'
+  - failed rows:
+      name: 查询验证reportName在关键字为/导管培养/，/血培养+药敏/,/血培养(导管血)/范围内的记录，如果查不到，distinct出包含/导管培养/，/血培养/,/血培养/任一关键字的reportName
+      fail query: |
+        select 1
+        where not exists (
+        select 1 from microbe_item
+        where reportName like '%导管培养%'
+           or reportName like '%血培养+药敏%'
+           or reportName like '%血培养(导管血)%'
+        )
+  # show_on_fail: |
+  #        select '【菌】匹配数' as item, count(1) as cnt from lab_item where itemName like '%菌%'
+  #        union all
+  #        select '【尿培养】匹配数' as item, count(1) as cnt from lab_item where reportName like '%尿培养%'
+  - failed rows:
+      name: 查询验证"itemName":{"$in":[/菌/]} 与 "reportName":{$in:[/尿培养/]}两个条件下的记录
+      fail query: |
+        select 1
+        where not exists (select 1 from microbe_item where itemName like '%菌%' and reportName like '%尿培养%')
