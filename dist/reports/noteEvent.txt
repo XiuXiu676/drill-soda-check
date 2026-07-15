@@ -1,0 +1,9 @@
+Soda Core 3.5.6
+Scan summary:
+3/3 checks PASSED: 
+
+  ✅ noteEvent表不为空 [PASS]
+  ✅ sourceId唯一 [PASS]
+  ✅ sourceId不为空 [PASS]
+
+All is good. No failures. No warnings. No errors.

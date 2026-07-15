@@ -24,7 +24,6 @@ def parse_show_on_fail_queries(check_file):
                 if after_marker and after_marker != '|':
                     sql_lines.append(after_marker)
 
-                # 收集后续注释行
                 j = i + 1
                 while j < len(lines) and lines[j].strip().startswith('#') and 'name:' not in lines[j]:
                     sql_part = lines[j].strip().lstrip('#').strip()
@@ -32,7 +31,6 @@ def parse_show_on_fail_queries(check_file):
                         sql_lines.append(sql_part)
                     j += 1
 
-                # 向后找最近的 name:（支持缩进）
                 check_name = None
                 k = j
                 while k < len(lines):
@@ -74,12 +72,12 @@ def show_data(conn, sql, limit=10):
         return None
 
 
-def run_checks(drill_host="localhost", drill_port=8047, sources=None):
+def run_checks(drill_host="localhost", drill_port=8047, sources=None, base_dir="."):
     """执行检查，返回结果"""
     if sources is None:
         sources = []
 
-    checks_dir = Path("checks")
+    checks_dir = Path(base_dir) / "checks"
 
     if not checks_dir.exists():
         print("❌ checks 目录不存在")

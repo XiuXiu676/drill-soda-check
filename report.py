@@ -13,12 +13,12 @@ def get_soda_version():
         return "3.0.x"
 
 
-def save_reports(all_results):
+def save_reports(all_results, base_dir="."):
     """保存报告，Soda Core 官方格式"""
     if not all_results:
         return
 
-    reports_dir = Path("reports")
+    reports_dir = Path(base_dir) / "reports"
     reports_dir.mkdir(exist_ok=True)
 
     soda_version = get_soda_version()
@@ -51,7 +51,6 @@ def save_reports(all_results):
                 status = "❗"
             lines.append(f"  {status} {check_name} [{outcome.upper()}]")
 
-            # 输出展示数据
             show_data = check.get('show_on_fail_data')
             if show_data:
                 lines.append("     📋 详情:")

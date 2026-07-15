@@ -1,0 +1,7 @@
+checks for noteEvent:
+  - row_count > 0:
+      name: noteEvent表不为空
+  - duplicate_count(sourceId) = 0:
+      name: sourceId唯一
+  - missing_count(sourceId) = 0:
+      name: sourceId不为空

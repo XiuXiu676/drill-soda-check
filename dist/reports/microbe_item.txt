@@ -1,0 +1,30 @@
+Soda Core 3.5.6
+Scan summary:
+9/11 checks PASSED: 
+
+  ✅ microbe_item表不为空 [PASS]
+  ✅ 标准库与中间库微生物报告结果行数一致 [PASS]
+  ✅ 标准库与镜像库微生物报告结果行数一致 [PASS]
+  ✅ 一类itemName值为具体的‘******菌’，一类itemName值关键字为‘未见’‘不见’‘未培养出’等表示未检出菌的描述 [PASS]
+  ❌ itemName值为‘******菌’时，对每个检出的菌做多条药敏测试，drugCode、drugName、DSTvalue、DSTresult不为空 [FAIL]
+     📋 详情:
+        ('drugResultId: 17732186705',)
+        ('drugResultId: 17739217733',)
+        ('drugResultId: 17741592738',)
+        ('drugResultId: 17743890752',)
+        ('drugResultId: 17750480779',)
+        ('drugResultId: 17762176836',)
+        ('drugResultId: 1775555479813746',)
+        ('drugResultId: 1775553481014006',)
+        ('drugResultId: 1775553681114032',)
+        ('drugResultId: 1776425883814565',)
+  ✅ 当itemName值关键字为‘未见’‘不见’‘未培养出’等表示未检出菌的描述时，药敏测试字段也都为空 [PASS]
+  ✅ 查询验证specimenId在67（中心静脉），68（外周静脉），45（导管头）范围内的记录 [PASS]
+  ❌ 查询验证reportName在关键字为/导管培养/，/血培养+药敏/,/血培养(导管血)/范围内的记录，如果查不到，distinct出包含/导管培养/，/血培养/,/血培养/任一关键字的reportName [FAIL]
+     📋 详情:
+        ('血培养及鉴定(成人)',)
+  ✅ 查询验证"itemName":{"$in":[/菌/]} 与 "reportName":{$in:[/尿培养/]}两个条件下的记录 [PASS]
+  ✅ drugResultId唯一 [PASS]
+  ✅ drugResultId不为空 [PASS]
+
+Oops! 2 failures.

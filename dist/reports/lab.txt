@@ -1,0 +1,31 @@
+Soda Core 3.5.6
+Scan summary:
+24/25 checks PASSED: 
+
+  ✅ lab表不为空 [PASS]
+  ✅ 标准库与中间库行数一致 [PASS]
+  ✅ 标准库行数小于等于镜像库（中间库按住院流水号过滤了一部分） [PASS]
+  ✅ 标准库与中间库报告ID列表一致 [PASS]
+  ❌ 血常规记录存在 [FAIL]
+  ✅ 尿常规或尿液分析记录存在 [PASS]
+  ✅ 血培养记录存在 [PASS]
+  ✅ 尿培养记录存在 [PASS]
+  ✅ 血气分析记录存在 [PASS]
+  ✅ specimenId值域检查 [PASS]
+  ✅ sampleTime一般小于reportTime [PASS]
+  ✅ category值域检查，L表示常规检验、M表是微生物检验 [PASS]
+  ✅ reportId唯一 [PASS]
+  ✅ reportId不为空 [PASS]
+  ✅ reportName不为空 [PASS]
+  ✅ specimenId不为空 [PASS]
+  ✅ specimenName不为空 [PASS]
+  ✅ sampleTime不为空 [PASS]
+  ✅ reportTime不为空 [PASS]
+  ✅ category不为空 [PASS]
+  ✅ icuStayId不为空 [PASS]
+  ✅ patientId不为空 [PASS]
+  ✅ inpatientNo不为空 [PASS]
+  ✅ visitId不为空 [PASS]
+  ✅ name不为空 [PASS]
+
+Oops! 1 failures.

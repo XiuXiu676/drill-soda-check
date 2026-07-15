@@ -1,0 +1,74 @@
+checks for lab:
+  - row_count > 0:
+      name: lab表不为空
+  - row_count same as maicim_lis_report_icu:
+      name: 标准库与中间库行数一致
+  - failed rows:
+      name: 标准库行数小于等于镜像库（中间库按住院流水号过滤了一部分）
+      fail query: |
+        select 1 where (select count(1) from lab) > (select count(1) from q_lab101)
+  - failed rows:
+      name: 标准库与中间库报告ID列表一致
+      fail query: |
+        select 1 where exists (
+          select reportId from lab
+          where reportId not in (select report_id from maicim_lis_report_icu)
+          union
+          select report_id from maicim_lis_report_icu
+          where report_id not in (select reportId from lab)
+        )
+  - duplicate_count(reportId) = 0:
+      name: reportId唯一
+  - missing_count(reportId) = 0:
+      name: reportId不为空
+  - missing_count(reportName) = 0:
+      name: reportName不为空
+  - row_count > 0:
+      name: 血常规记录存在
+      filter: reportName LIKE '%血常规%'
+  - row_count > 0:
+      name: 尿常规或尿液分析记录存在
+      filter: reportName LIKE '%尿常规%' or reportName LIKE '%尿液分析%'
+  - row_count > 0:
+      name: 血培养记录存在
+      filter: reportName LIKE '%血培养%'
+  - row_count > 0:
+      name: 尿培养记录存在
+      filter: reportName LIKE '%尿培养%'
+  - row_count > 0:
+      name: 血气分析记录存在
+      filter: reportName LIKE '%血气分析%'
+  - missing_count(specimenId) = 0:
+      name: specimenId不为空
+  - failed rows:
+      name: specimenId值域检查
+      fail condition: |
+        specimenId is not null
+        and specimenId not in (select itemId from standard_dictionary_map where dicCode = 'dic_specimen')
+  - missing_count(specimenName) = 0:
+      name: specimenName不为空
+  - missing_count(sampleTime) = 0:
+      name: sampleTime不为空
+  - missing_count(reportTime) = 0:
+      name: reportTime不为空
+  - failed rows:
+      name: sampleTime一般小于reportTime
+      fail query: |
+        select * from lab where sampleTime >= reportTime
+  - missing_count(category) = 0:
+      name: category不为空
+  - failed rows:
+      name: category值域检查，L表示常规检验、M表是微生物检验
+      fail condition: |
+        category is not null
+        and category not in (select itemId from standard_dictionary_map where dicCode = 'dic_category')
+  - missing_count(icuStayId) = 0:
+      name: icuStayId不为空
+  - missing_count(patientId) = 0:
+      name: patientId不为空
+  - missing_count(inpatientNo) = 0:
+      name: inpatientNo不为空
+  - missing_count(visitId) = 0:
+      name: visitId不为空
+  - missing_count(name) = 0:
+      name: name不为空

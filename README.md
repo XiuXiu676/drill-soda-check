@@ -10,6 +10,8 @@
 
 ##### 5. 添加数据源：Storage->Create->Configuration
 
+**_tips：需确认apache-drill-1.22.0/jars/3rdparty目录下有对应数据库的驱动_**
+
 MySQL示例：
 ```
 {

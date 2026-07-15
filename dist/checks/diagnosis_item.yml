@@ -1,0 +1,67 @@
+checks for diagnosis_item:
+  - row_count > 0:
+      name: diagnosis_item表不为空
+  - row_count same as maicim_diagnoses_icu:
+      name: 标准库与中间库行数一致
+  - row_count same as q_diag101:
+      name: 标准库与镜像库行数一致
+  - failed rows:
+      name: 标准库与中间库诊断ID列表一致
+      fail query: |
+        select 1 where exists (
+          select diagnosisId from diagnosis_item
+          where diagnosisId not in (select diagnosis_id from maicim_diagnoses_icu)
+          union
+          select diagnosis_id from maicim_diagnoses_icu
+          where diagnosis_id not in (select diagnosisId from diagnosis_item)
+        )
+  - failed rows:
+      name: 标准库与镜像库诊断ID列表一致
+      fail query: |
+        select 1 where exists (
+          select diagnosisId from diagnosis_item
+          where diagnosisId not in (select diagnosis_id from q_diag101)
+          union
+          select diagnosis_id from q_diag101
+          where diagnosis_id not in (select diagnosisId from diagnosis_item)
+        )
+  - duplicate_count(diagnosisId) = 0:
+      name: diagnosis_id唯一
+  - missing_count(diagnosisId) = 0:
+      name: diagnosis_id不为空
+  - missing_count(icdCode) = 0:
+      name: icdCode不为空
+  - missing_count(diagnosisCategory) = 0:
+      name: diagnosisCategory不为空
+  - failed rows:
+      name: diagnosisCategory值域检查，0主要诊断1次要诊断
+      fail condition: |
+        diagnosisCategory is not null
+        and diagnosisCategory not in (select itemId from standard_dictionary_map where dicCode = 'dic_diagnosisCategory')
+  - missing_count(diagnosisType) = 0:
+      name: diagnosisType不为空
+  - failed rows:
+      name: diagnosisType值域检查
+      fail condition: |
+        diagnosisType is not null
+        and diagnosisType not in (select itemId from standard_dictionary_map where dicCode = 'dic_diagnosisType')
+  - missing_count(diagnosisTime) = 0:
+      name: diagnosisTime不为空
+  - missing_count(icuStayId) = 0:
+      name: icuStayId不为空
+  - missing_count(patientId) = 0:
+      name: patientId不为空
+  - missing_count(inpatientNo) = 0:
+      name: inpatientNo不为空
+  - missing_count(visitId) = 0:
+      name: visitId不为空
+  - missing_count(name) = 0:
+      name: name不为空
+  - missing_percent(standDiagCategory) < 100:
+      name: standDiagCategory不全为空
+  - missing_percent(diagScore) < 100:
+      name: diagScore不全为空
+  - missing_percent(standOperDiagCategory) < 100:
+      name: standOperDiagCategory不全为空
+  - missing_percent(operDiagScore) < 100:
+      name: operDiagScore不全为空
