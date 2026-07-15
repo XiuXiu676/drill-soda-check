@@ -51,7 +51,7 @@ show tables in mongo.test;
 
 ##### 3. main.py数据源配置
 
-在SOURCES中指定需要用到的数据源中的数据库
+在SOURCES中指定Drill的IP和端口，以及需要用到的数据源中的数据库
 
 ##### 4. 添加校验规则
 
