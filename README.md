@@ -43,23 +43,11 @@ show tables in mysql.test;
 show tables in mongo.test;
 ```
 
-#### 二、Soda配置
-
-##### 1. 软件包安装：pip install -r requirements.txt
-
-##### 2. configuration.yml
-
-根据实际情况修改connection中的host和port
-
-##### 3. main.py数据源配置
-
-在SOURCES中指定Drill的IP和端口，以及需要用到的数据源中的数据库
-
-##### 4. 添加校验规则
+#### 二、添加校验规则
 
 checks目录下使用yml文件定义各类校验规则
 
-#### 三、本项目用到的Soda规则关键字
+##### 本项目用到的Soda规则关键字：
 
 - `row_count > 0`: 行数大于0，用于验证表非空，可选filter参数，先条件筛选后验证行数
 - `row_count same as table`: 两个表中行数一致
@@ -70,3 +58,15 @@ checks目录下使用yml文件定义各类校验规则
 - `show_on_fail`: 内容在注释中，当紧跟在后面的规则校验失败时，输出自定义sql查询的内容进行展示
 
 **_tips：Soda原生规则只支持校验，show_on_fail由python自定义实现_**
+
+#### 三、Soda配置（dist中有打包后的程序，添加规则后可直接运行，不需要额外配置）
+
+##### 1. 新建虚拟环境: 运行setup.bat自动重建虚拟环境并安装依赖
+
+##### 2. configuration.yml
+
+根据实际情况修改connection中的host和port
+
+##### 3. main.py数据源配置
+
+在SOURCES中指定Drill服务所在的的IP和端口，以及需要用到的数据源中的数据库
