@@ -57,13 +57,14 @@ show tables in mongo.test;
 
 checks目录下使用yml文件定义各类校验规则
 
-tips：Soda原生只支持校验，当yml的注释中show_on_fail后面的原生规则校验失败时，自定义的展示内容由python实现
+#### 三、本项目用到的Soda规则关键字
 
-#### 三、本项目用到的Soda原生规则关键字
+- `row_count > 0`: 行数大于0，用于验证表非空，可选filter参数，先条件筛选后验证行数
+- `row_count same as table`: 两个表中行数一致
+- `failed rows`: 当`fail query`中的sql条件或`fail condition`中的条件满足时校验结果为失败
+- `duplicate_count(column) = 0`: 字段唯一
+- `missing_count(column) = 0`: 字段非空
+- `missing_percent(column) < 0`: 字段不全为空，至少一条数据不为空
+- `show_on_fail`: 内容在注释中，当紧跟在后面的规则校验失败时，输出自定义sql查询的内容进行展示
 
-- `row_count > 0`：行数大于0，用于验证表非空，可选filter参数，先条件筛选后验证行数
-- `row_count same as table`：两个表中行数一致
-- `failed rows`：当"fail query"中的sql条件或"fail condition"中的条件满足时校验结果为失败
-- `duplicate_count(column) = 0`：字段唯一
-- `missing_count(column) = 0`：字段非空
-- `missing_percent(column) < 0`：字段不全为空，至少一条数据不为空
+**_tips：Soda原生规则只支持校验，show_on_fail由python自定义实现_**
