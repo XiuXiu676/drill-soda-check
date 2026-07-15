@@ -61,9 +61,9 @@ tips：Soda原生只支持校验，当yml的注释中show_on_fail后面的原生
 
 #### 三、本项目用到的Soda原生规则关键字
 
-row_count > 0：行数大于0，用于验证表非空，可选filter参数，先条件筛选后验证行数
-row_count same as table：两个表中行数一致
-failed rows：当"fail query"中的sql条件或"fail condition"中的条件满足时校验结果为失败
-duplicate_count(column) = 0：字段唯一
-missing_count(column) = 0：字段非空
-missing_percent(column) < 0：字段不全为空，至少一条数据不为空
+- `row_count > 0`：行数大于0，用于验证表非空，可选filter参数，先条件筛选后验证行数
+- `row_count same as table`：两个表中行数一致
+- `failed rows`：当"fail query"中的sql条件或"fail condition"中的条件满足时校验结果为失败
+- `duplicate_count(column) = 0`：字段唯一
+- `missing_count(column) = 0`：字段非空
+- `missing_percent(column) < 0`：字段不全为空，至少一条数据不为空
