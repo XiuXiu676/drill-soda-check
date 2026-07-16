@@ -1,12 +1,13 @@
 Soda Core 3.5.6
 Scan summary:
-22/23 checks PASSED: 
+23/24 checks PASSED: 
 
   ✅ lab_item表不为空 [PASS]
   ✅ 标准库行数与中间库按常规检验筛选的行数一致 [PASS]
   ✅ 标准库行数小于等于镜像库按常规检验筛选的行数（中间库按住院流水号过滤了一部分） [PASS]
   ✅ itemId值域检查 [PASS]
   ✅ value为数值时valueNum不为空 [PASS]
+  ✅ itemId为20009与20017的value为数值 [PASS]
   ✅ itemId为20009与20017的单位为%时值域[0,100],否则[0,1] [PASS]
   ✅ valueFlag范围，0正常，1异常 [PASS]
   ✅ 查询验证itemId为20002(PH血液酸碱度)，20009(红细胞压积)，20017(吸氧浓度)，20004(二氧化碳分压)的记录 [PASS]

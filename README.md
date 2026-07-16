@@ -1,18 +1,30 @@
 #### 一、Drill部署
 
-##### 1. 下载并解压，演示版本为1.22.0
+##### 1. 下载并解压
 
-##### 2. 确认Java环境，Drill1.22.0不支持Java8，推荐Java11、Java17或Java21
+演示版本为1.22.0
 
-##### 3. 启动Drill服务：bin/drill-embedded.bat
+##### 2. 确认Java环境
 
-##### 4. 打开网页配置界面：localhost:8047
+Drill1.22.0不支持Java8，推荐Java11、Java17或Java21
 
-##### 5. 添加数据源：Storage->Create->Configuration
+##### 3. 启动Drill服务
+
+bin/drill-embedded.bat
+
+或自选指定版本JDK: bin/drill-embedded.bat/drill-setup-specify-jdk.bat
+
+##### 4. 打开网页配置界面
+
+localhost:8047
+
+##### 5. 添加数据源
+
+Storage->Create->Configuration
 
 **_tips：需确认apache-drill-1.22.0/jars/3rdparty目录下有对应数据库的驱动_**
 
-MySQL示例：
+MySQL示例（mysql-connector-java-5.1.49.jar）：
 ```
 {
   "type": "jdbc",
@@ -24,7 +36,7 @@ MySQL示例：
 }
 ```
 
-MongoDB示例：
+MongoDB示例（mongodb-driver-sync-4.11.1.jar）：
 ```
 {
   "type": "mongo",
@@ -33,7 +45,9 @@ MongoDB示例：
 }
 ```
 
-##### 6. 验证数据源：在drill-embedded.bat打开的命令行窗口中进行验证
+##### 6. 验证数据源
+
+在drill-embedded.bat打开的命令行窗口中进行验证
 
 示例：
 
@@ -43,11 +57,15 @@ show tables in mysql.test;
 show tables in mongo.test;
 ```
 
-#### 二、添加校验规则
+#### 二、数据源配置
+
+在config.json中配置drill的IP、端口、数据源名称与数据库名称
+
+#### 三、添加校验规则
 
 checks目录下使用yml文件定义各类校验规则
 
-##### 本项目用到的Soda规则关键字：
+**本项目用到的Soda规则关键字：**
 
 - `row_count > 0`: 行数大于0，用于验证表非空，可选filter参数，先条件筛选后验证行数
 - `row_count same as table`: 两个表中行数一致
@@ -59,14 +77,8 @@ checks目录下使用yml文件定义各类校验规则
 
 **_tips：Soda原生规则只支持校验，show_on_fail由python自定义实现_**
 
-#### 三、Soda配置（dist中有打包后的程序，添加规则后可直接运行，不需要额外配置）
+#### 四、Soda配置（dist中有打包后的程序，添加规则后可直接运行，不需要额外配置）
 
-##### 1. 新建虚拟环境: 运行setup.bat自动重建虚拟环境并安装依赖
+##### 1. 新建虚拟环境
 
-##### 2. configuration.yml
-
-根据实际情况修改connection中的host和port
-
-##### 3. main.py数据源配置
-
-在SOURCES中指定Drill服务所在的的IP和端口，以及需要用到的数据源中的数据库
+运行setup.bat自动重建虚拟环境并安装依赖

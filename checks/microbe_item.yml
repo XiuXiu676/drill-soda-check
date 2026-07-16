@@ -6,18 +6,18 @@ checks for microbe_item:
       fail query: |
         select 1
         where (select count(1) from microbe_item) != (
-        select count(1) from maicim_lis_result_icu
-        left join maicim_lis_microbe_icu on maicim_lis_result_icu.result_id = maicim_lis_microbe_icu.result_id
-        where maicim_lis_result_icu.report_id in (select report_id from maicim_lis_report_icu where category = 'M')
+        select count(1) from maicim_lis_result_icu as a
+        left join maicim_lis_microbe_icu as b on a.result_id = b.result_id
+        where a.report_id in (select report_id from maicim_lis_report_icu where category = 'M')
         )
   - failed rows:
       name: 标准库与镜像库微生物报告结果行数一致
       fail query: |
         select 1
         where (select count(1) from microbe_item) != (
-        select count(1) from q_lab102
-        left join q_lab103 on q_lab102.LabItemRcdFlow = q_lab103.LabItemRcdFlow
-        where q_lab102.LabFlow in (select report_id from maicim_lis_report_icu where category = 'M')
+        select count(1) from q_lab102 as a
+        left join q_lab103 as b on a.LabItemRcdFlow = b.LabItemRcdFlow
+        where a.LabFlow in (select report_id from maicim_lis_report_icu where category = 'M')
         )
   - duplicate_count(drugResultId) = 0:
       name: drugResultId唯一

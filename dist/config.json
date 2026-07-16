@@ -1,0 +1,9 @@
+{
+    "drill_host": "localhost",
+    "drill_port": 8047,
+    "sources": [
+        "mysql.data_source_his",
+        "mysql.standard_interface",
+        "mongo.test"
+    ]
+}

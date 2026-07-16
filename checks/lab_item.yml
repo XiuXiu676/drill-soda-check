@@ -37,11 +37,27 @@ checks for lab_item:
           and valueNum is null
   - missing_percent(unit) < 100:
       name: unit不全为空
+  # show_on_fail: |
+  #        select '【非数值记录】' as item, itemId, value, unit from lab_item where itemId in ('20009', '20017')
+  #                                                                          and try_cast(value as double) is null)
+  - failed rows:
+      name: itemId为20009与20017的value为数值
+      fail query: |
+        select * from lab_item
+                where itemId in ('20009', '20017')
+                and try_cast(value as double) is null
+  # show_on_fail: |
+  #        select '【数值记录】' as item, itemId, value, unit from lab_item where itemId in ('20009', '20017')
+  #        and try_cast(value as double) is not null
+  #        and ((unit = '%' and (cast(value as double) < 0 or cast(value as double) > 100)
+  #             or
+  #             (unit != '%' and (cast(value as double) < 0 or cast(value as double) > 1))
   - failed rows:
       name: itemId为20009与20017的单位为%时值域[0,100],否则[0,1]
       fail query: |
         select * from lab_item
         where itemId in ('20009', '20017')
+        and try_cast(value as double) is not null
         and (
           (unit = '%' and (cast(value as double) < 0 or cast(value as double) > 100))
           or

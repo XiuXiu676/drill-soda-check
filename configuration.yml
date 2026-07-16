@@ -1,5 +1,0 @@
-data_source drill_source:
-  type: drill
-  connection:
-    host: localhost
-    port: 8047

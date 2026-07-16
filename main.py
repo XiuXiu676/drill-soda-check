@@ -3,6 +3,7 @@
 """
 import sys
 import os
+import json
 from run_checks import run_checks
 from report import save_reports
 
@@ -14,14 +15,34 @@ def get_base_dir():
     return os.path.dirname(os.path.abspath(__file__))
 
 
-# 设置控制台输出编码，替换 emoji 为纯文本
+def load_config():
+    """从 exe 同级目录加载配置文件"""
+    config_path = os.path.join(get_base_dir(), 'config.json')
+
+    if os.path.exists(config_path):
+        with open(config_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    else:
+        print(f"[WARN] 未找到配置文件: {config_path}")
+        print("[WARN] 使用默认配置")
+        return {
+            "drill_host": "localhost",
+            "drill_port": 8047,
+            "sources": [
+                "mysql.data_source_his",
+                "mysql.standard_interface",
+                "mongo.test"
+            ]
+        }
+
+
+# 设置控制台输出编码
 if sys.platform == 'win32':
     try:
         sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     except:
         pass
 
-    # 替换全局 print 中的 emoji
     import builtins
     _original_print = builtins.print
 
@@ -42,19 +63,16 @@ if sys.platform == 'win32':
 
 
 BASE_DIR = get_base_dir()
-OUTPUT_DIR = get_base_dir()
+config = load_config()
 
-DRILL_HOST = "localhost"
-DRILL_PORT = 8047
-SOURCES = [
-    "mysql.data_source_his",
-    "mysql.standard_interface",
-    "mongo.test"
-]
+DRILL_HOST = config.get("drill_host", "localhost")
+DRILL_PORT = config.get("drill_port", 8047)
+SOURCES = config.get("sources", [])
 
 if __name__ == '__main__':
     print(f"[*] 工作目录: {BASE_DIR}")
-    print(f"[*] 输出目录: {OUTPUT_DIR}")
+    print(f"[*] Drill: {DRILL_HOST}:{DRILL_PORT}")
+    print(f"[*] 数据源: {SOURCES}")
 
     results = run_checks(
         drill_host=DRILL_HOST,
@@ -64,6 +82,6 @@ if __name__ == '__main__':
     )
 
     if results:
-        save_reports(results, base_dir=OUTPUT_DIR)
+        save_reports(results, base_dir=BASE_DIR)
 
     input("\n按 Enter 键退出...")
